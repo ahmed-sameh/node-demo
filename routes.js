@@ -1,46 +1,46 @@
 const fs = require("fs");
 
-const rqHandler = (req, res) => {
-  const url = req.url;
-  const method = req.method;
-  if (url === "/") {
-    res.setHeader("Content-Type", "text/html");
-    res.write("<html>");
-    res.write("<head> <title>Home</title> </head>");
-    res.write("<body>");
-    res.write(
-      '<form action="/message" method="POST"><input type=text" name="message"/><button type="submit">Submit</button></form>'
-    );
-    res.write("</body>");
-    res.write("</html>");
-    return res.end();
-  }
-
-  if (url === "/message" && method === "POST") {
-    const body = [];
-    req.on("data", (chunk) => {
-      body.push(chunk);
-    });
-
-    return req.on("end", () => {
-      const parsedBody = Buffer.concat(body).toString();
-      const message = parsedBody.split("=")[1];
-      fs.writeFile("messages.txt", message, (error) => {
-        res.statusCode = 302;
-        res.setHeader("Location", "/");
-        return res.end();
-      });
-    });
-  }
-
+const routesHandler = (req, res) => {
   res.setHeader("Content-Type", "text/html");
-  res.write("<html>");
-  res.write("<head> <title>404</title> </head>");
-  res.write("<body>");
-  res.write("<h1>404 Error => Can't Found Your Page</h1>");
-  res.write("</body>");
-  res.write("</html>");
-  res.end();
+
+  switch (req.url) {
+    case "/":
+      res.write("<html>");
+      res.write("<head><title>Collect Data </title></head>");
+      res.write(
+        "<body><h1>Enter Message</h1> <form action='/message' method='post'><input type='text' name='message'/> <button type='submit'>Send</button></form></body>"
+      );
+      res.write("</html>");
+      res.end();
+      break;
+
+    case "/message":
+      if (req.method == "POST") {
+        const dataStream = [];
+        req.on("data", (chunk) => {
+          console.log(chunk);
+          dataStream.push(chunk);
+        });
+
+        req.on("end", () => {
+          const parsedData = Buffer.concat(dataStream).toString();
+          const message = parsedData.split("=")[1];
+          fs.writeFile("messages.txt", message, (err) => {
+            res.statusCode = 302;
+            res.setHeader("Location", "/");
+            res.end();
+          });
+        });
+      }
+      break;
+
+    default:
+      res.write("<html>");
+      res.write("<head><title>First of many isa</title></head>");
+      res.write("<body><h1>FIRST OF MANY ISA</h1></body>");
+      res.write("</html>");
+      res.end();
+  }
 };
 
-exports.handler = rqHandler;
+exports.routesHandler = routesHandler;
