@@ -15,8 +15,6 @@ exports.AddProduct = (req, res) => {
 
 exports.GetProducts = (req, res) => {
   Product.fetchAll((products) => {
-    console.log(__filename);
-    console.log(products);
     const data = {
       prods: products,
       pageTitle: "Shop",
